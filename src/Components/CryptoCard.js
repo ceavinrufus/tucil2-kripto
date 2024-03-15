@@ -12,6 +12,7 @@ import { Picker } from "@react-native-picker/picker";
 import ModifiedRC4Cipher from "../Utils/ModifiedRC4Cipher.js";
 import ReaderFile from "./ReaderFile.js";
 import * as FileSystem from "expo-file-system";
+import { Buffer } from "buffer";
 
 const CryptoCard = () => {
   const [key, setKey] = useState("");
