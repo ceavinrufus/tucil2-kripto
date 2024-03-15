@@ -40,26 +40,33 @@ const CryptoCard = () => {
 
   const downloadFile = async (content, nameExtension) => {
     try {
-      const blob = await new Blob([content.buffer], {
-        type: mimeType,
-      });
-      const url = URL.createObjectURL(blob); // Create a temporary URL for the blob
-      // console.log(escape(String.fromCharCode(...content)));
+      const permissions =
+        await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
 
-      // Choose a suitable download directory (replace with your desired location)
-      const downloadPath =
-        fileName.split(".")[0] +
-        "_" +
-        nameExtension +
-        "." +
-        fileName.split(".")[1];
+      if (permissions.granted) {
+        const directoryUri = permissions.directoryUri;
+        const newFileName =
+          fileName.split(".")[0] +
+          "_" +
+          nameExtension +
+          "." +
+          fileName.split(".")[1];
 
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = downloadPath;
-      link.click();
-
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+        await FileSystem.StorageAccessFramework.createFileAsync(
+          directoryUri,
+          newFileName,
+          mimeType
+        )
+          .then(async (uri) => {
+            console.log("tes");
+            await FileSystem.writeAsStringAsync(uri, content, {
+              encoding: "base64",
+            });
+          })
+          .catch((e) => {
+            console.error("Error downloading file:", e);
+          });
+      }
     } catch (error) {
       console.error("Error downloading file:", error);
       // Handle other errors
@@ -68,14 +75,14 @@ const CryptoCard = () => {
 
   const encryptFile = () => {
     // Encrypt file
-    const encryptedContent = rc4.encryptFile(file);
+    const encryptedContent = rc4.encrypt(file);
     setEncryptedFile(encryptedContent);
     setDecryptedFile(null);
   };
 
   const decryptFile = () => {
     // Decrypt file
-    const decryptedContent = rc4.decryptFile(file);
+    const decryptedContent = rc4.decrypt(file);
     setDecryptedFile(decryptedContent);
     setEncryptedFile(null);
   };

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "tucil2kriptocepusjosu",
-    "slug": "tucil2kriptocepusjosu",
+    "name": "Modified RC4 Cipher",
+    "slug": "tucil2-kripto",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -21,10 +21,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.ceavinrufus.tucil2kripto"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d9f35f32-790c-4cbb-a129-027e167fdae5"
+      }
     }
   }
 }

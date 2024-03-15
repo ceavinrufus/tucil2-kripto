@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import * as DocumentPicker from "expo-document-picker";
 import * as FileSystem from "expo-file-system";
+import { Buffer } from "buffer";
 
 const ReaderFile = ({ setFile, setFileName, setMimeType }) => {
   const pickFile = async () => {
@@ -31,17 +32,27 @@ const ReaderFile = ({ setFile, setFileName, setMimeType }) => {
       const { uri, name, mimeType } = result.assets[0];
 
       try {
-        const fileData = await fetch(uri); // Fetch the file data
-        const buffer = await fileData.arrayBuffer();
-        const uint8Array = new Uint8Array(buffer);
+        const fileData = await readContent(uri);
         setFileName(name);
-        setFile(uint8Array);
+        setFile(fileData);
         setMimeType(mimeType);
       } catch (error) {
         console.error("Error reading file:", error);
       }
     } catch (error) {
       console.error("Error handling file:", error);
+    }
+  };
+
+  const readContent = async (uri) => {
+    try {
+      const data = await FileSystem.readAsStringAsync(uri, {
+        encoding: "base64",
+      });
+      return Buffer.from(data, "base64").toString("binary");
+    } catch (error) {
+      console.error("Error reading file:", error);
+      return null;
     }
   };
 
