@@ -88,7 +88,7 @@ const CryptoCard = () => {
 
       if (permissions.granted) {
         const directoryUri = permissions.directoryUri;
-        const newFileName = txtFileName + ".";
+        const newFileName = txtFileName + ".txt";
 
         await FileSystem.StorageAccessFramework.createFileAsync(
           directoryUri,
