@@ -7,20 +7,22 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
-  Button,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import ModifiedRC4Cipher from "../Utils/ModifiedRC4Cipher.js";
 import ReaderFile from "./ReaderFile.js";
+import * as FileSystem from "expo-file-system";
 
 const CryptoCard = () => {
-  const [plaintext, setPlaintext] = useState("");
   const [key, setKey] = useState("");
+  const [plaintext, setPlaintext] = useState("");
+  const [encryptedText, setEncryptedText] = useState("");
   const [ciphertext, setCiphertext] = useState("");
   const [decryptedText, setDecryptedText] = useState("");
   const [selectedOption, setSelectedOption] = useState("text");
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState("");
+  const [mimeType, setMimeType] = useState("");
   const [encryptedFile, setEncryptedFile] = useState();
   const [decryptedFile, setDecryptedFile] = useState();
 
@@ -28,7 +30,7 @@ const CryptoCard = () => {
 
   const handleEncrypt = () => {
     const encryptedText = rc4.encrypt(plaintext);
-    setCiphertext(encryptedText);
+    setEncryptedText(encryptedText);
   };
 
   const handleDecrypt = () => {
@@ -36,21 +38,31 @@ const CryptoCard = () => {
     setDecryptedText(decryptedText);
   };
 
-  const downloadFile = async (content, fileExtension) => {
+  const downloadFile = async (content, nameExtension) => {
     try {
-      const directory =
-        FileSystem.documentDirectory +
+      const blob = await new Blob([content.buffer], {
+        type: mimeType,
+      });
+      const url = URL.createObjectURL(blob); // Create a temporary URL for the blob
+      // console.log(escape(String.fromCharCode(...content)));
+
+      // Choose a suitable download directory (replace with your desired location)
+      const downloadPath =
         fileName.split(".")[0] +
         "_" +
-        fileExtension +
+        nameExtension +
         "." +
         fileName.split(".")[1];
-      await FileSystem.writeAsStringAsync(directory, content, {
-        encoding: FileSystem.EncodingType.Base64,
-      });
-      alert("File downloaded successfully!");
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = downloadPath;
+      link.click();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
     } catch (error) {
       console.error("Error downloading file:", error);
+      // Handle other errors
     }
   };
 
@@ -104,15 +116,13 @@ const CryptoCard = () => {
                   style={styles.input}
                   placeholder="Enter plain text"
                   value={plaintext}
-                  onChangeText={(text) =>
-                    setPlaintext(text.replace(/[^a-zA-Z\s]/g, ""))
-                  }
+                  onChangeText={(text) => setPlaintext(text)}
                   multiline={true}
                 />
               </View>
               <Text style={styles.textStyle}>Encrypted Text:</Text>
               <ScrollView style={styles.outputContainer}>
-                <Text style={styles.outputText}>{ciphertext}</Text>
+                <Text style={styles.outputText}>{encryptedText}</Text>
               </ScrollView>
               <View style={styles.separator} />
               <Text style={styles.textStyle}>Ciphertext:</Text>
@@ -121,9 +131,7 @@ const CryptoCard = () => {
                   style={styles.input}
                   placeholder="Enter ciphertext"
                   value={ciphertext}
-                  onChangeText={(text) =>
-                    setCiphertext(text.replace(/[^a-zA-Z\s]/g, ""))
-                  }
+                  onChangeText={(text) => setCiphertext(text)}
                   multiline={true}
                 />
               </View>
@@ -145,38 +153,59 @@ const CryptoCard = () => {
           {selectedOption === "file" && (
             <View style={styles.inputContainer}>
               {/* disini bikin uploader */}
-              <ReaderFile setFile={setFile} setFileName={setFileName} />
+              <ReaderFile
+                setFile={setFile}
+                setFileName={setFileName}
+                setMimeType={setMimeType}
+              />
+              {file && <Text>File Selected: {fileName}</Text>}
+
+              <View style={styles.separator} />
+
               <View style={styles.buttonContainer}>
-                <TouchableOpacity style={styles.button} onPress={handleEncrypt}>
+                <TouchableOpacity style={styles.button} onPress={encryptFile}>
                   <Text style={styles.buttonText}>Encrypt</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={handleDecrypt}>
+                <TouchableOpacity style={styles.button} onPress={decryptFile}>
                   <Text style={styles.buttonText}>Decrypt</Text>
                 </TouchableOpacity>
+                {/* <Button
+                  title="Encrypt File"
+                  onPress={encryptFile}
+                  disabled={!file || !key}
+                />
+                <Button
+                  title="Decrypt File"
+                  onPress={decryptFile}
+                  disabled={!file || !key}
+                /> */}
               </View>
               {/* Other UI components */}
-              <Button
-                title="Encrypt File"
-                onPress={encryptFile}
-                disabled={!file || !key}
-              />
-              <Button
-                title="Decrypt File"
-                onPress={decryptFile}
-                disabled={!file || !key}
-              />
+              <View style={styles.separator} />
+
               <View>
                 {file && (
-                  <View>
-                    <Text>File Selected: {fileName}</Text>
-                    <Button
-                      title="Download Encrypted File"
-                      onPress={() => downloadFile(encryptedFile, "encrypted")}
-                    />
-                    <Button
-                      title="Download Decrypted File"
-                      onPress={() => downloadFile(decryptedFile, "decrypted")}
-                    />
+                  <View style={{ gap: 4 }}>
+                    {encryptedFile && (
+                      <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => downloadFile(encryptedFile, "encrypted")}
+                      >
+                        <Text style={styles.buttonText}>
+                          Download Encrypted File
+                        </Text>
+                      </TouchableOpacity>
+                    )}
+                    {decryptedFile && (
+                      <TouchableOpacity
+                        style={styles.button}
+                        onPress={() => downloadFile(decryptedFile, "decrypted")}
+                      >
+                        <Text style={styles.buttonText}>
+                          Download Decrypted File
+                        </Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 )}
               </View>
