@@ -73,29 +73,6 @@ class ModifiedRC4Cipher {
     }
     return plaintext;
   }
-
-  encryptFile(file) {
-    let S = this.KSA();
-    let keyStream = this.PRGA(S, file.length);
-    let encryptedFile = new Uint8Array(file.length);
-    for (let i = 0; i < file.length; i++) {
-      let plainCharCode = file[i];
-      let encryptedByte = plainCharCode ^ keyStream[i];
-      encryptedFile[i] = encryptedByte;
-    }
-    return encryptedFile;
-  }
-
-  decryptFile(file) {
-    let S = this.KSA();
-    let keyStream = this.PRGA(S, file.length);
-    let decryptedFile = new Uint8Array(file.length);
-    for (let i = 0; i < file.length; i++) {
-      let decryptedByte = file[i] ^ keyStream[i];
-      decryptedFile[i] = decryptedByte;
-    }
-    return decryptedFile;
-  }
 }
 
 export default ModifiedRC4Cipher;

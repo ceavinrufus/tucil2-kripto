@@ -75,14 +75,18 @@ const CryptoCard = () => {
 
   const encryptFile = () => {
     // Encrypt file
-    const encryptedContent = rc4.encrypt(file);
+    const encryptedContent = Buffer.from(rc4.encrypt(file), "binary").toString(
+      "base64"
+    );
     setEncryptedFile(encryptedContent);
     setDecryptedFile(null);
   };
 
   const decryptFile = () => {
     // Decrypt file
-    const decryptedContent = rc4.decrypt(file);
+    const decryptedContent = Buffer.from(rc4.decrypt(file), "binary").toString(
+      "base64"
+    );
     setDecryptedFile(decryptedContent);
     setEncryptedFile(null);
   };

@@ -15,7 +15,6 @@
     "@react-navigation/native": "^6.1.16",
     "@react-navigation/native-stack": "^6.6.2",
     "expo": "~50.0.13",
-    "expo-dev-client": "~3.3.10",
     "expo-document-picker": "~11.10.1",
     "expo-file-system": "~16.0.8",
     "expo-permissions": "^14.4.0",
