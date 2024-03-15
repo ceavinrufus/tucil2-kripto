@@ -110,7 +110,7 @@ const CryptoCard = () => {
     <ScrollView contentContainerStyle={styles.scrollViewContainer}>
       <View style={styles.container}>
         <View style={styles.cardContainer}>
-          <Text style={styles.titleStyle}>Modified RC4</Text>
+          <Text style={styles.titleStyle}>RC4 Cipher</Text>
           <Text style={styles.textStyle}>Key:</Text>
           <View style={styles.inputContainer}>
             <TextInput
