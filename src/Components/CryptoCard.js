@@ -81,6 +81,35 @@ const CryptoCard = () => {
     }
   };
 
+  const downloadTxt = async (content, txtFileName) => {
+    try {
+      const permissions =
+        await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+
+      if (permissions.granted) {
+        const directoryUri = permissions.directoryUri;
+        const newFileName = txtFileName + ".";
+
+        await FileSystem.StorageAccessFramework.createFileAsync(
+          directoryUri,
+          newFileName,
+          "text/plain"
+        )
+          .then(async (uri) => {
+            await FileSystem.writeAsStringAsync(uri, content, {
+              encoding: "utf8",
+            });
+          })
+          .catch((e) => {
+            console.error("Error downloading txt:", e);
+          });
+      }
+    } catch (error) {
+      console.error("Error downloading txt:", error);
+      // Handle other errors
+    }
+  };
+
   const encryptFile = () => {
     // Encrypt file
     const encryptedContent = Buffer.from(rc4.encrypt(file), "binary").toString(
@@ -188,7 +217,7 @@ const CryptoCard = () => {
                 {encryptedText && (
                   <TouchableOpacity
                     style={styles.button}
-                    onPress={() => downloadFile(encryptedFile, "encrypted")}
+                    onPress={() => downloadTxt(encryptedText, "encrypted")}
                   >
                     <Text style={styles.buttonText}>Download Encrypted</Text>
                   </TouchableOpacity>
@@ -196,7 +225,7 @@ const CryptoCard = () => {
                 {decryptedText && (
                   <TouchableOpacity
                     style={styles.button}
-                    onPress={() => downloadFile(decryptedFile, "decrypted")}
+                    onPress={() => downloadTxt(decryptedText, "decrypted")}
                   >
                     <Text style={styles.buttonText}>Download Decrypted</Text>
                   </TouchableOpacity>
