@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, TextInput, ScrollView, TouchableOpacity } from 'react-native';
+import {Picker} from '@react-native-picker/picker';
 import VigenereCipher from "../Utils/VigenereCipher.js";
 // import DocumentPicker from 'react-native-document-picker';
 //https://medium.com/@prem__kumar/implementing-file-upload-with-react-native-document-picker-in-react-native-5c3493da698d
@@ -10,6 +11,8 @@ const CryptoCard = () => {
   const [key, setKey] = useState("");
   const [ciphertext, setCiphertext] = useState("");
   const [decryptedText, setDecryptedText] = useState("");
+  const [selectedOption, setSelectedOption] = useState('');
+
   
   const handleEncrypt = () => {
     const vigenere = new VigenereCipher(key);
@@ -58,48 +61,75 @@ const CryptoCard = () => {
               multiline={false}
             />
           </View>
+          <Text style={styles.textStyle}>Select Input Source:</Text>
+          <Picker
+            selectedValue={selectedOption}
+            style={styles.picker}
+            onValueChange={(itemValue, itemIndex) =>
+              setSelectedOption(itemValue)
+            }>
+            <Picker.Item label="Text" value="text" />
+            <Picker.Item label="File" value="file" />
+          </Picker>
           {/* <Button title="Gallary" onPress={async () => {
               uploadFileOnPressHandler();
           }} /> */}
           <View style={styles.separator} />
-          <Text style={styles.textStyle}>Plain Text:</Text>
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter plain text"
-              value={plaintext}
-              onChangeText={(text) => setPlaintext(text.replace(/[^a-zA-Z\s]/g, ""))}
-              multiline={true}
-            />
-          </View>
-          <Text style={styles.textStyle}>Encrypted Text:</Text>
-          <ScrollView style={styles.outputContainer}>
-            <Text style={styles.outputText}>{ciphertext}</Text>
-          </ScrollView>
-          <View style={styles.separator} />
-          <Text style={styles.textStyle}>Ciphertext:</Text>
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter ciphertext"
-              value={ciphertext}
-              onChangeText={(text) => setCiphertext(text.replace(/[^a-zA-Z\s]/g, ""))}
-              multiline={true}
-            />
-          </View>
-          <Text style={styles.textStyle}>Decrypted Text:</Text>
-          <ScrollView style={styles.outputContainer}>
-            <Text style={styles.outputText}>{decryptedText}</Text>
-          </ScrollView>
-          <View style={styles.separator} />
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.button} onPress={handleEncrypt}>
-              <Text style={styles.buttonText}>Encrypt</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button} onPress={handleDecrypt}>
-              <Text style={styles.buttonText}>Decrypt</Text>
-            </TouchableOpacity>
-          </View>
+          {selectedOption === 'text' && (
+            <View>
+              <Text style={styles.textStyle}>Plain Text:</Text>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter plain text"
+                  value={plaintext}
+                  onChangeText={(text) => setPlaintext(text.replace(/[^a-zA-Z\s]/g, ""))}
+                  multiline={true}
+                />
+              </View>
+              <Text style={styles.textStyle}>Encrypted Text:</Text>
+              <ScrollView style={styles.outputContainer}>
+                <Text style={styles.outputText}>{ciphertext}</Text>
+              </ScrollView>
+              <View style={styles.separator} />
+              <Text style={styles.textStyle}>Ciphertext:</Text>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter ciphertext"
+                  value={ciphertext}
+                  onChangeText={(text) => setCiphertext(text.replace(/[^a-zA-Z\s]/g, ""))}
+                  multiline={true}
+                />
+              </View>
+              <Text style={styles.textStyle}>Decrypted Text:</Text>
+              <ScrollView style={styles.outputContainer}>
+                <Text style={styles.outputText}>{decryptedText}</Text>
+              </ScrollView>
+              <View style={styles.separator} />
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.button} onPress={handleEncrypt}>
+                  <Text style={styles.buttonText}>Encrypt</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={handleDecrypt}>
+                  <Text style={styles.buttonText}>Decrypt</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+          {selectedOption === 'file' && (
+            <View style={styles.inputContainer}>
+              {/* disini bikin uploader */}
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity style={styles.button} onPress={handleEncrypt}>
+                  <Text style={styles.buttonText}>Encrypt</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={handleDecrypt}>
+                  <Text style={styles.buttonText}>Decrypt</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
       </View>
     </ScrollView>
