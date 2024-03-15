@@ -1,4 +1,4 @@
-# RC4: Classic Cipher Website
+# Modified RC4 Mobile App
 
 RC4 (Rivest Cipher 4), juga dikenal sebagai ARC4, adalah algoritma enkripsi stream cipher yang terkenal dengan kesederhanaan dan kecepatannya dalam perangkat lunak.
 
@@ -33,6 +33,8 @@ eas build --profile development --platform android
 | Modified RC4                                  | ✅     |
 | Able to encrypt + decrypt file                | ✅     |
 | Able to save encrypted/decrypted to .txt file | ✅     |
+| Mobile app                                    | ✅     |
+| Website                                       | ✅     |
 
 ## Note
 
