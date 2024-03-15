@@ -7,52 +7,66 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
+  Button,
 } from "react-native";
-import {Picker} from '@react-native-picker/picker';
+import { Picker } from "@react-native-picker/picker";
 import ModifiedRC4Cipher from "../Utils/ModifiedRC4Cipher.js";
-// import DocumentPicker from 'react-native-document-picker';
-//https://medium.com/@prem__kumar/implementing-file-upload-with-react-native-document-picker-in-react-native-5c3493da698d
-//masih error gatau gmn import nya dah
+import ReaderFile from "./ReaderFile.js";
 
 const CryptoCard = () => {
   const [plaintext, setPlaintext] = useState("");
   const [key, setKey] = useState("");
   const [ciphertext, setCiphertext] = useState("");
   const [decryptedText, setDecryptedText] = useState("");
-  const [selectedOption, setSelectedOption] = useState('');
+  const [selectedOption, setSelectedOption] = useState("text");
+  const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState("");
+  const [encryptedFile, setEncryptedFile] = useState();
+  const [decryptedFile, setDecryptedFile] = useState();
 
-  
+  const rc4 = new ModifiedRC4Cipher(key);
+
   const handleEncrypt = () => {
-    const vigenere = new ModifiedRC4Cipher(key);
-    const encryptedText = vigenere.encrypt(plaintext);
+    const encryptedText = rc4.encrypt(plaintext);
     setCiphertext(encryptedText);
   };
 
   const handleDecrypt = () => {
-    const vigenere = new ModifiedRC4Cipher(key);
-    const decryptedText = vigenere.decrypt(ciphertext);
+    const decryptedText = rc4.decrypt(ciphertext);
     setDecryptedText(decryptedText);
   };
 
-  // const uploadFileOnPressHandler = async () => {
-  //   try {
-  //     const pickedFile = await DocumentPicker.pickSingle({
-  //       type: [DocumentPicker.types.allFiles],
-  //     });
-  //     console.log('pickedFile',pickedFile);
+  const downloadFile = async (content, fileExtension) => {
+    try {
+      const directory =
+        FileSystem.documentDirectory +
+        fileName.split(".")[0] +
+        "_" +
+        fileExtension +
+        "." +
+        fileName.split(".")[1];
+      await FileSystem.writeAsStringAsync(directory, content, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      alert("File downloaded successfully!");
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  };
 
-  //     await RNFS.readFile(pickedFile.uri, 'base64').then(data => {
-  //       console.log('base64',data);
-  //     });
-  //   } catch (err) {
-  //     if (DocumentPicker.isCancel(err)) {
-  //       console.log(err);
-  //     } else {
-  //       console.log(error);
-  //       throw err;
-  //     }
-  //   }
-  // };
+  const encryptFile = () => {
+    // Encrypt file
+    const encryptedContent = rc4.encryptFile(file);
+    setEncryptedFile(encryptedContent);
+    setDecryptedFile(null);
+  };
+
+  const decryptFile = () => {
+    // Decrypt file
+    const decryptedContent = rc4.decryptFile(file);
+    setDecryptedFile(decryptedContent);
+    setEncryptedFile(null);
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.scrollViewContainer}>
@@ -75,15 +89,14 @@ const CryptoCard = () => {
             style={styles.picker}
             onValueChange={(itemValue, itemIndex) =>
               setSelectedOption(itemValue)
-            }>
+            }
+          >
             <Picker.Item label="Text" value="text" />
             <Picker.Item label="File" value="file" />
           </Picker>
-          {/* <Button title="Gallary" onPress={async () => {
-              uploadFileOnPressHandler();
-          }} /> */}
+
           <View style={styles.separator} />
-          {selectedOption === 'text' && (
+          {selectedOption === "text" && (
             <View>
               <Text style={styles.textStyle}>Plain Text:</Text>
               <View style={styles.inputContainer}>
@@ -91,7 +104,9 @@ const CryptoCard = () => {
                   style={styles.input}
                   placeholder="Enter plain text"
                   value={plaintext}
-                  onChangeText={(text) => setPlaintext(text.replace(/[^a-zA-Z\s]/g, ""))}
+                  onChangeText={(text) =>
+                    setPlaintext(text.replace(/[^a-zA-Z\s]/g, ""))
+                  }
                   multiline={true}
                 />
               </View>
@@ -106,7 +121,9 @@ const CryptoCard = () => {
                   style={styles.input}
                   placeholder="Enter ciphertext"
                   value={ciphertext}
-                  onChangeText={(text) => setCiphertext(text.replace(/[^a-zA-Z\s]/g, ""))}
+                  onChangeText={(text) =>
+                    setCiphertext(text.replace(/[^a-zA-Z\s]/g, ""))
+                  }
                   multiline={true}
                 />
               </View>
@@ -125,9 +142,10 @@ const CryptoCard = () => {
               </View>
             </View>
           )}
-          {selectedOption === 'file' && (
+          {selectedOption === "file" && (
             <View style={styles.inputContainer}>
               {/* disini bikin uploader */}
+              <ReaderFile setFile={setFile} setFileName={setFileName} />
               <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.button} onPress={handleEncrypt}>
                   <Text style={styles.buttonText}>Encrypt</Text>
@@ -135,6 +153,32 @@ const CryptoCard = () => {
                 <TouchableOpacity style={styles.button} onPress={handleDecrypt}>
                   <Text style={styles.buttonText}>Decrypt</Text>
                 </TouchableOpacity>
+              </View>
+              {/* Other UI components */}
+              <Button
+                title="Encrypt File"
+                onPress={encryptFile}
+                disabled={!file || !key}
+              />
+              <Button
+                title="Decrypt File"
+                onPress={decryptFile}
+                disabled={!file || !key}
+              />
+              <View>
+                {file && (
+                  <View>
+                    <Text>File Selected: {fileName}</Text>
+                    <Button
+                      title="Download Encrypted File"
+                      onPress={() => downloadFile(encryptedFile, "encrypted")}
+                    />
+                    <Button
+                      title="Download Decrypted File"
+                      onPress={() => downloadFile(decryptedFile, "decrypted")}
+                    />
+                  </View>
+                )}
               </View>
             </View>
           )}

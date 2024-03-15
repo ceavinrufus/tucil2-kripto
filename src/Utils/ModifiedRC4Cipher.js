@@ -56,9 +56,9 @@ class ModifiedRC4Cipher {
     let ciphertext = "";
     for (let i = 0; i < plaintext.length; i++) {
       // XOR plaintext byte with keystream byte
-      let encryptedByte = plaintext.charCodeAt(i) ^ keyStream[i];
+      let plainCharCode = plaintext.charCodeAt(i);
+      let encryptedByte = plainCharCode ^ keyStream[i];
       // Convert encrypted byte to hexadecimal and pad with zeros
-      // let hex = encryptedByte.toString(16).toUpperCase().padStart(2, "0");
       let hex = encryptedByte.toString(16).padStart(2, "0");
       ciphertext += hex;
     }
@@ -80,6 +80,10 @@ class ModifiedRC4Cipher {
     }
     return plaintext;
   }
+
+  encryptFile(file) {}
+
+  decryptFile(file) {}
 }
 
 export default ModifiedRC4Cipher;
